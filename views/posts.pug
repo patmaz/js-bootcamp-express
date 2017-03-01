@@ -1,0 +1,9 @@
+html
+    body
+        h1= title
+        ul.posts
+            each item in posts
+                li
+                    h2= item.title
+                    p= item.content
+                    a(href= item.id) link

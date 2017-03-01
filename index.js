@@ -15,6 +15,36 @@ app.use('/post/form', function(req, res, next){
     next();
 });
 
+// Templates
+app.set('view engine', 'pug');
+app.set('views','./views');
+
+app.get('/', function(req, res){
+    fs.readFile('./data.json', 'utf8', function(err, data){
+        if (err) throw err;
+
+        res.render('posts', {
+            title: 'Posts',
+            posts: JSON.parse(data).items
+        });
+    });
+});
+
+app.get('/:postid', function(req, res){
+    fs.readFile('./data.json', 'utf8', function(err, data){
+        if (err) throw err;
+
+        var post = JSON.parse(data).items.filter(
+                function(element, index) {
+                    return element.id === req.params.postid;
+                }
+            )
+        res.render('post', {
+            post: post[0]
+        });
+    });
+});
+
 //GET
 // according to query params
 app.get('/get', function(req, res){
@@ -36,16 +66,16 @@ app.get('/get', function(req, res){
 //POST
 // save posts to data.json
 app.post('/post/json', function(req, res){
-        fs.readFile('./data.json', 'utf8', function(err, data){
-            if (err) throw err;
-            var dataParsed = JSON.parse(data);
-            dataParsed.items.push(req.body);
+    fs.readFile('./data.json', 'utf8', function(err, data){
+        if (err) throw err;
+        var dataParsed = JSON.parse(data);
+        dataParsed.items.push(req.body);
 
-            fs.writeFile('./data.json', JSON.stringify(dataParsed), 'utf8', function(err){
-                if (err) throw err;
-                res.send('saved');
-            });
+        fs.writeFile('./data.json', JSON.stringify(dataParsed), 'utf8', function(err){
+            if (err) throw err;
+            res.send('saved');
         });
+    });
 });
 
 // save forms to forms.txt

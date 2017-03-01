@@ -1,1 +1,1 @@
-{"items":[{"Post 1":"Content of post numero 1"}]}
+{"items":[{"title":"Post1","content":"Content of post numero 1","id":"post1"},{"title":"Post2","content":"Content of post numero 2","id":"post2"},{"title":"Post3","content":"Content of post numero 3","id":"post3"},{"title":"Post4","content":"Content of post numero 4","id":"post4"}]}
