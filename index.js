@@ -61,10 +61,6 @@ app.get('/auth/google/callback',
     }
 ));
 
-app.get('/addpost', function(req, res){
-    res.render('addpost', { user: googleProfile});
-});
-
 //GET
 // according to query params
 app.get('/get', function(req, res){
@@ -78,6 +74,24 @@ app.get('/get', function(req, res){
     }
 
     res.sendFile(path);
+});
+
+// GET
+// feedback values from form
+app.get('/form', function(req, res){
+    res.sendFile(__dirname + '/static/form.html');
+});
+app.get('/feedback', function(req, res){
+    const response = {
+        first_name: req.query.first_name,
+        last_name: req.query.last_name
+    };
+    res.end(JSON.stringify(response));
+});
+
+// POSTS
+app.get('/addpost', function(req, res){
+    res.render('addpost', { user: googleProfile});
 });
 
 app.get('/posts', function(req, res){
@@ -106,8 +120,6 @@ app.get('/:postid', function(req, res){
     });
 });
 
-//POST
-// save posts to data.json
 app.post('/post/json', function(req, res){
     fs.readFile('./data.json', 'utf8', function(err, data){
         if (err) throw err;
