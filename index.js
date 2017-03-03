@@ -13,11 +13,6 @@ app.use('/post/json', function(req, res, next){
     console.log('middle for /post/json', req.body);
     next();
 });
-app.use('/post/form', bodyParser.urlencoded({ extended: false }));
-app.use('/post/form', function(req, res, next){
-    console.log('middle for /post/form', req.body);
-    next();
-});
 
 //passport
 passport.serializeUser(function(user, done){
@@ -47,6 +42,9 @@ app.use(passport.session());
 app.set('view engine', 'pug');
 app.set('views','./views');
 
+//static
+app.use(express.static('static'));
+
 app.get('/', function(req, res){
     res.render('index');
 });
@@ -62,6 +60,10 @@ app.get('/auth/google/callback',
         failureRedirect: '/'
     }
 ));
+
+app.get('/addpost', function(req, res){
+    res.render('addpost', { user: googleProfile});
+});
 
 app.get('/posts', function(req, res){
     fs.readFile('./data.json', 'utf8', function(err, data){
@@ -97,8 +99,6 @@ app.get('/get', function(req, res){
 
     if(query === 'json') {
         path = './data.json';
-    } else if (query === 'forms') {
-        path = './forms.txt';
     }
 
     fs.readFile(path, 'utf8', function(err, data){
@@ -117,17 +117,9 @@ app.post('/post/json', function(req, res){
 
         fs.writeFile('./data.json', JSON.stringify(dataParsed), 'utf8', function(err){
             if (err) throw err;
-            res.send('saved');
+            //res.redirect('/posts');
+            res.json({redirect: '/posts'});
         });
-    });
-});
-
-// save forms to forms.txt
-app.post('/post/form', function(req, res){
-    var dataToSave = JSON.stringify(req.body) + '\n';
-    fs.appendFile('./forms.txt', dataToSave, 'utf8', function(err){
-        if (err) throw err;
-        res.send('saved');
     });
 });
 

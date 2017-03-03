@@ -1,0 +1,15 @@
+html
+    body(data-displayname= user.displayName)
+        h1 Add post
+        form(id='form')
+            input(type='text', name="title")
+            br
+            textarea(name='content')
+            br
+            input(type='text' name='id')
+            br
+            input(type='submit' value='submit')
+        script(src='https://code.jquery.com/jquery-3.1.1.min.js',
+                integrity='sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=',
+                crossorigin='anonymous')
+        script(src='../client.js')

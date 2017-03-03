@@ -3,9 +3,12 @@ html
         h1= title
         p #{user.displayName} your id #{user.id}
         img(src= user.photo)
+        br
+        a(href='/addpost') ADD POST
         ul.posts
             each item in posts
                 li
                     h2= item.title
+                    p Author: #{item.displayName}
                     p= item.content
                     a(href= item.id) link
