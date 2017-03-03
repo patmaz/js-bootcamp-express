@@ -65,6 +65,21 @@ app.get('/addpost', function(req, res){
     res.render('addpost', { user: googleProfile});
 });
 
+//GET
+// according to query params
+app.get('/get', function(req, res){
+    var query = req.query.q;
+    var path;
+
+    if(query === 'booyah') {
+        path = __dirname + '/static/booyah.jpg';
+    } else {
+        path = __dirname + '/data.json';
+    }
+
+    res.sendFile(path);
+});
+
 app.get('/posts', function(req, res){
     fs.readFile('./data.json', 'utf8', function(err, data){
         if (err) throw err;
@@ -88,22 +103,6 @@ app.get('/:postid', function(req, res){
         res.render('post', {
             post: post[0]
         });
-    });
-});
-
-//GET
-// according to query params
-app.get('/get', function(req, res){
-    var query = req.query.q;
-    var path;
-
-    if(query === 'json') {
-        path = './data.json';
-    }
-
-    fs.readFile(path, 'utf8', function(err, data){
-        if (err) throw err;
-        res.send(data);
     });
 });
 
