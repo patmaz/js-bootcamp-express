@@ -2,6 +2,10 @@ var express = require('express');
 var app = express();
 var fs = require('fs');
 var bodyParser = require('body-parser');
+var config = require('./config.js');
+var passport = require('passport');
+var GoogleStartegy = require('passport-google-oauth').OAuth2Strategy;
+var googleProfile = {};
 
 //middleware
 app.use('/post/json', bodyParser.json());
@@ -15,17 +19,57 @@ app.use('/post/form', function(req, res, next){
     next();
 });
 
+//passport
+passport.serializeUser(function(user, done){
+    done(null, user);
+});
+passport.deserializeUser(function(user, done){
+    done(null, user);
+});
+passport.use(new GoogleStartegy({
+        clientID: config.CLIENT_ID,
+        clientSecret:config.SECRET_KEY,
+        callbackURL: config.CALLBACK_URL
+    },
+    function(accessToken, refreshToken, profile, cb){
+        googleProfile = {
+            id: profile.id,
+            displayName: profile.displayName,
+            photo: profile.photos[0].value
+        };
+        cb(null, profile);
+    }
+));
+app.use(passport.initialize());
+app.use(passport.session());
+
 // Templates
 app.set('view engine', 'pug');
 app.set('views','./views');
 
 app.get('/', function(req, res){
+    res.render('index');
+});
+
+app.get('/auth/google',
+    passport.authenticate('google', {
+        scope : ['profile', 'email']
+    }
+));
+app.get('/auth/google/callback',
+    passport.authenticate('google', {
+        successRedirect : '/posts',
+        failureRedirect: '/'
+    }
+));
+
+app.get('/posts', function(req, res){
     fs.readFile('./data.json', 'utf8', function(err, data){
         if (err) throw err;
-
         res.render('posts', {
             title: 'Posts',
-            posts: JSON.parse(data).items
+            posts: JSON.parse(data).items,
+            user: googleProfile
         });
     });
 });

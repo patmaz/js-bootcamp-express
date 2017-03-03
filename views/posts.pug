@@ -1,6 +1,8 @@
 html
     body
         h1= title
+        p #{user.displayName} your id #{user.id}
+        img(src= user.photo)
         ul.posts
             each item in posts
                 li
