@@ -6,6 +6,15 @@ var config = require('./config.js');
 var passport = require('passport');
 var GoogleStartegy = require('passport-google-oauth').OAuth2Strategy;
 var googleProfile = {};
+var eventEmitter = require('events').EventEmitter;
+var emitter = new eventEmitter();
+
+emitter.on('err', function(err){
+    console.error('##### ERROR #####', err);
+});
+process.on('uncaughtException', function(err) {
+    console.error('Uncaught error', err);
+});
 
 //middleware
 app.use('/post/json', bodyParser.json());
@@ -96,7 +105,7 @@ app.get('/addpost', function(req, res){
 
 app.get('/posts', function(req, res){
     fs.readFile('./data.json', 'utf8', function(err, data){
-        if (err) throw err;
+        if (err) emitter.emit('err', new Error(err));
         res.render('posts', {
             title: 'Posts',
             posts: JSON.parse(data).items,
@@ -106,8 +115,8 @@ app.get('/posts', function(req, res){
 });
 
 app.get('/:postid', function(req, res){
-    fs.readFile('./data.json', 'utf8', function(err, data){
-        if (err) throw err;
+    fs.readFile('./data.jsonn', 'utf8', function(err, data){
+        if (err) emitter.emit('err', new Error(err));
 
         var post = JSON.parse(data).items.filter(
                 function(element, index) {
@@ -122,12 +131,12 @@ app.get('/:postid', function(req, res){
 
 app.post('/post/json', function(req, res){
     fs.readFile('./data.json', 'utf8', function(err, data){
-        if (err) throw err;
+        if (err) emitter.emit('err', new Error(err));
         var dataParsed = JSON.parse(data);
         dataParsed.items.push(req.body);
 
         fs.writeFile('./data.json', JSON.stringify(dataParsed), 'utf8', function(err){
-            if (err) throw err;
+            if (err) emitter.emit('err', new Error(err));
             res.status(200).json(null);
         });
     });
