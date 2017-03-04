@@ -13,7 +13,7 @@ $('#form').on('submit', function(e) {
         dataType: "json",
         contentType: "application/json"
     }).done(function(xhr) {
-        window.location.href = xhr.redirect;
+        window.location.href = '/posts';
     }).fail(function(xhr, status, err) {
         console.log(xhr);
         console.log(status);

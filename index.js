@@ -128,8 +128,7 @@ app.post('/post/json', function(req, res){
 
         fs.writeFile('./data.json', JSON.stringify(dataParsed), 'utf8', function(err){
             if (err) throw err;
-            //res.redirect('/posts');
-            res.json({redirect: '/posts'});
+            res.status(200).json(null);
         });
     });
 });
