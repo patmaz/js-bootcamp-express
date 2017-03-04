@@ -1,4 +1,22 @@
 html
-	body
-		h1 Welcome
-		a(href='/auth/google') log in
+    include _head.pug
+    body
+        div.container
+            div.jumbotron
+                h1 Hello!
+                if user
+                    p Welcome, #{user.fullName}
+                    p
+                        a(href="posts") Posts
+                    p
+                        a.small(href="profile") Edit my profile
+                    form(action='/logout', method='POST')
+                        button.btn.btn-default(type="submit") Logout
+                else
+                    p Welcome to my app, ready to get started?
+                    p
+                        a.btn.btn-primary(href="/login") Login now
+                    p
+                        span.small Don't have an account?
+                        br
+                        a.small(href="/register") Register now

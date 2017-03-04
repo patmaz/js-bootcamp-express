@@ -1,4 +1,7 @@
 html
+    include _head.pug
     body
-        h1= post.title
-        p= post.content
+        div.container
+            div.col-md-10
+                h1= post.title
+                p= post.content
