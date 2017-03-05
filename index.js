@@ -28,6 +28,7 @@ app.use(stormpath.init(app, {
 }));
 
 app.use('/profile', stormpath.loginRequired, require('./profile')());
+app.use('/addpost', stormpath.loginRequired, stormpath.getUser, require('./addpost')());
 
 // Templates
 app.set('view engine', 'pug');
@@ -41,12 +42,7 @@ app.get('/', stormpath.getUser, function(req, res){
     res.render('index');
 });
 
-// POSTS
-app.get('/addpost', stormpath.getUser, function(req, res){
-    res.render('addpost');
-});
-
-app.get('/posts', stormpath.getUser, function(req, res){
+app.get('/posts', stormpath.loginRequired, stormpath.getUser, function(req, res){
     fs.readFile('./data.json', 'utf8', function(err, data){
         if (err) emitter.emit('err', new Error(err));
         res.render('posts', {
@@ -56,7 +52,7 @@ app.get('/posts', stormpath.getUser, function(req, res){
     });
 });
 
-app.get('/:postid', function(req, res){
+app.get('/:postid', stormpath.loginRequired, function(req, res){
     fs.readFile('./data.json', 'utf8', function(err, data){
         if (err) emitter.emit('err', new Error(err));
 
