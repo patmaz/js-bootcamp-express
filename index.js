@@ -6,6 +6,7 @@ var config = require('./config.js');
 var eventEmitter = require('events').EventEmitter;
 var emitter = new eventEmitter();
 var stormpath = require('express-stormpath');
+var uuidV4 = require('uuid/v4');
 
 emitter.on('err', function(err){
     console.error('##### ERROR #####', err);
@@ -71,6 +72,7 @@ app.post('/post/json', function(req, res){
     fs.readFile('./data.json', 'utf8', function(err, data){
         if (err) emitter.emit('err', new Error(err));
         var dataParsed = JSON.parse(data);
+        req.body.id = uuidV4();
         dataParsed.items.push(req.body);
 
         fs.writeFile('./data.json', JSON.stringify(dataParsed), 'utf8', function(err){

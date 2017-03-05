@@ -12,9 +12,6 @@ var addForm = forms.create({
     content: fields.string({
         required: true,
         widget: widgets.textarea()
-    }),
-    id: fields.string({
-        required: true
     })
 });
 
