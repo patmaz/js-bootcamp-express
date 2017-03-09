@@ -1,27 +1,14 @@
 var express = require('express');
-var app = express();
 var fs = require('fs');
 var bodyParser = require('body-parser');
-var config = require('./config.js');
 var passport = require('passport');
 var GoogleStartegy = require('passport-google-oauth').OAuth2Strategy;
+
+var checkAndHandleError = require('./checkAndHandleError');
+var config = require('./config.js');
+
+var app = express();
 var googleProfile = {};
-var eventEmitter = require('events').EventEmitter;
-var emitter = new eventEmitter();
-
-emitter.on('err', function(err){
-    console.error('##### ERROR #####', err);
-});
-process.on('uncaughtException', function(err) {
-    console.error('Uncaught error', err);
-});
-
-//middleware
-app.use('/post/json', bodyParser.json());
-app.use('/post/json', function(req, res, next){
-    console.log('middle for /post/json', req.body);
-    next();
-});
 
 //passport
 passport.serializeUser(function(user, done){
@@ -44,16 +31,20 @@ passport.use(new GoogleStartegy({
         cb(null, profile);
     }
 ));
-app.use(passport.initialize());
-app.use(passport.session());
 
 // Templates
 app.set('view engine', 'pug');
 app.set('views','./views');
 
-//static
-app.use(express.static('static'));
+// Middlewares
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(function (req, res, next) {
+    res.status(404).send('nope!');
+});
+app.use(express.static('static')); // URL
 
+// Endpoints, URI, REST, API
 app.get('/', function(req, res){
     res.render('index');
 });
@@ -63,6 +54,7 @@ app.get('/auth/google',
         scope : ['profile', 'email']
     }
 ));
+
 app.get('/auth/google/callback',
     passport.authenticate('google', {
         successRedirect : '/posts',
@@ -90,6 +82,7 @@ app.get('/get', function(req, res){
 app.get('/form', function(req, res){
     res.sendFile(__dirname + '/static/form.html');
 });
+
 app.get('/feedback', function(req, res){
     const response = {
         first_name: req.query.first_name,
@@ -98,14 +91,10 @@ app.get('/feedback', function(req, res){
     res.end(JSON.stringify(response));
 });
 
-// POSTS
-app.get('/addpost', function(req, res){
-    res.render('addpost', { user: googleProfile});
-});
-
+// Get all posts from posts collection
 app.get('/posts', function(req, res){
     fs.readFile('./data.json', 'utf8', function(err, data){
-        if (err) emitter.emit('err', new Error(err));
+        checkAndHandleError(err, res);
         res.render('posts', {
             title: 'Posts',
             posts: JSON.parse(data).items,
@@ -114,9 +103,10 @@ app.get('/posts', function(req, res){
     });
 });
 
-app.get('/:postid', function(req, res){
+// Get one post from posts collection
+app.get('/posts/:postid', function(req, res){
     fs.readFile('./data.jsonn', 'utf8', function(err, data){
-        if (err) emitter.emit('err', new Error(err));
+        checkAndHandleError(err, res);
 
         var post = JSON.parse(data).items.filter(
                 function(element, index) {
@@ -129,20 +119,23 @@ app.get('/:postid', function(req, res){
     });
 });
 
-app.post('/post/json', function(req, res){
+// Render template for creating new post
+app.get('/posts/new', function(req, res){
+    res.render('addpost', { user: googleProfile});
+});
+
+// Create new post in posts collection
+app.post('/posts/new', function(req, res){
     fs.readFile('./data.json', 'utf8', function(err, data){
-        if (err) emitter.emit('err', new Error(err));
+        checkAndHandleError(err, res);
         var dataParsed = JSON.parse(data);
         dataParsed.items.push(req.body);
 
         fs.writeFile('./data.json', JSON.stringify(dataParsed), 'utf8', function(err){
-            if (err) emitter.emit('err', new Error(err));
+            checkAndHandleError(err, res);
             res.status(200).json(null);
         });
     });
 });
 
 app.listen(3000);
-app.use(function (req, res, next) {
-    res.status(404).send('nope!');
-});
